@@ -1,0 +1,19 @@
+{
+  "name": "idea77",
+  "version": "1.0.0",
+  "description": "DareWithMe",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Lakshay Dureja",
+  "license": "ISC",
+  "dependencies": {
+    "bootstrap": "^5.2.2",
+    "ejs": "^3.1.8",
+    "express": "^4.18.2",
+    "peer": "^0.6.1",
+    "socket.io": "^4.5.3",
+    "uuid": "^9.0.0"
+  }
+}
