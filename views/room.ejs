@@ -1,120 +1,160 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Dare With Me</title>
-    <link
-      href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"
-      rel="stylesheet"
-      integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi"
-      crossorigin="anonymous"
-    />
-    <link rel="stylesheet" href="style.css" />
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="https://unpkg.com/peerjs@1.3.1/dist/peerjs.min.js"></script>
-    <script src="https://kit.fontawesome.com/c939d0e917.js"></script>
 
-    <script>
-      const ROOM_ID = "<%= roomId %>";
-    </script>
-    <!-- fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Indie+Flower&family=Russo+One&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <!-- navbar -->
-    <nav class="navbar bg-light">
-      <div class="container-fluid bg-secondary bg-opacity-75 nav">
-        <a class="navbar-brand mx-auto" href="#">
-          <img
-            src="/assests/icon.png"
-            alt="Logo"
-            width="77"
-            height="70"
-            class="d-inline-block align-text-top"
-          />
-          &nbsp Dare With Me
-        </a>
-      </div>
-    </nav>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dare With Me</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-Zenh87qX5JnK2Jl0vWa8Ck2rdkQ2Bzep5IDxbcnCeuOxjzrPF/et3URy9Bv1WTRi" crossorigin="anonymous" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="/socket.io/socket.io.js" ></script>
+  <script src="https://kit.fontawesome.com/c939d0e917.js"></script>
+  <script src="https://unpkg.com/peerjs@1.4.7/dist/peerjs.min.js" ></script>
 
-    <!-- main body -->
-<div class="main1 ">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/assests/favicon/apple-touch-icon.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/assests/favicon/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/assests/favicon/favicon-16x16.png">
+  <link rel="manifest" href="/assests/favicon/site.webmanifest">
+
   
-  <div class="row" id="mainrow">
-    <div class="col container">
-      
-        <div id="video-grid1">
+  <!-- fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Indie+Flower&family=Russo+One&display=swap"
+    rel="stylesheet" />
 
-        </div>
-      
 
-      
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
+  integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3" crossorigin="anonymous"></script>
+  
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+
+
+</head>
+
+<body>
+  <!-- navbar -->
+  <nav class="navbar bg-light">
+    <div class="container-fluid bg-secondary bg-opacity-75 nav">
+      <a class="navbar-brand mx-auto" href="#">
+        <img src="/assests/icon.png" alt="Logo" width="77" height="70" class="d-inline-block align-text-top" />
+        &nbsp Dare With Me
+      </a>
     </div>
-    <div class="col bottle">
-        <img src="/assests/board2.png" alt="board image" id="imgboard">
-        <img src="/assests/bottle.png" alt="bottle" id="imgbottle">
-     
-    </div>
-    <div class="col container">
+  </nav>
 
 
 
-      <div id="video-grid2">
 
+<!-- modal -->
+<div class="modal fade " id="exampleModalToggle" aria-hidden="true" aria-labelledby="exampleModalToggleLabel" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalToggleLabel"> Welcome to Dare With Me !</h1>
+      </div>
+      <div class="modal-body">
+        "Dare with Me" brings the classic game of truth and dare to the virtual world, ensuring endless entertainment
+          and excitement. Gather your friends, join the game, and let the dares begin!
+          <br><br>
+          Get Started By Creating a new room or by joining Room of your friend.      </div>
+      <div class="modal-footer">
+        <button type="button" class="btnMO" data-bs-dismiss="modal" aria-label="Close" onclick="createRoomx()">Create a Room</button>
+
+        <button class="btnMO " data-bs-target="#exampleModalToggle2" data-bs-toggle="modal">Join Room</button>
       </div>
     </div>
-  
+  </div>
 </div>
-</div>
-
-<!-- main2 controls row -->
-<div class="main2  text-center">
-
-  <div class="row">
-    <div class="col">
-      
-
-      
-    </div>
-    <div class="col" id="btn-spin">
-      <button class="btn" onclick="rotate()">SPIN</button>
-    </div>
-    <div class="col" id=" btn-skip">
-      <button class="btn" onclick="share()">SHARE</button>
-      <!-- <div id="inviteButton" class="options__button">
-        <i class="fas fa-user-plus"></i> -->
-</div>
+<div class="modal fade" id="exampleModalToggle2" aria-hidden="true" aria-labelledby="exampleModalToggleLabel2" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalToggleLabel2">Join Room</h1>
+        <!-- <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button> -->
+      </div>
+      <div class="modal-body">
+        Room Code: <input type="text" id="roomcodeVAL" placeholder="Enter room code here"></div>
+      <div class="modal-footer">
+        <button type="button" class="btnMO" onclick="joinRoomx()" data-bs-dismiss="modal" aria-label="Close" >GO IN</button>
+      </div>
     </div>
   </div>
 </div>
 
+
+
+<h2 id="roomcodeP">Room code is</h2>
+
+
+  <!-- main body -->
+  <div class="cent">
+  <div class="main1 ">
+
+    
+<!-- shift the vedios put remote vedio first and your vedio here -->
+
+      <div class="ContVideo" id="ContVid1">
+
+        <video id="localVideo" muted="muted" autoplay></video>
+
+
+      </div>
+
+<div id="bottleParent">
+      <div class="bottle" id="ContSpin">
+        
+        <img src="/assests/board2.png" alt="board image" class="imgboard" id="IDboard">
+        <img src="/assests/bottle.png" alt="bottle" class="imgbottle" id="IDbottle">
+      
+      </div>
+</div>
+      <div class="ContVideo" id="ContVid2">
+
+        <video id="remoteVideo" autoplay></video>
+
+      </div>
+
+    
+  </div>
 </div>
 
 
-   
 
-  </body>
-  <script src="script.js"></script>
-  <script
-  src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"
-  integrity="sha384-OERcA2EqjJCMA+/3y+gxIOqMEjwtxJY7qPCqsdltbNJuaOe923+mo//f6V8Qbsw3"
-  crossorigin="anonymous"
-></script>
+<div class="cent">
+  <!-- main2 controls row -->
+  <div class="main2">
 
-<script>
-  let angle = 0
-  const pointer = document.querySelector('#imgbottle')
-  const btn = document.querySelector('#btn-spin')
+    
 
-  btn.addEventListener('click', function () {
-    angle = angle + 2 * 360 + Math.random() * 360;
-    pointer.style.transform = `rotate(${angle}deg)`;
-  })
-</script>
+      
+        <button class="btn "  id="btnspin">SPIN</button>
+      
+
+      
+        <button class="btn" onclick="share()">SHARE</button>
+     
+
+    
+  </div>
+  
+</div>
+
+
+  <script>
+    $(window).load(function()
+    {
+        $('#exampleModalToggle').modal('show');
+    });
+      </script>
+    
+    
+      <script src="script.js"></script>
+</body>
+
+
+
+
 </html>

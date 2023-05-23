@@ -1,174 +1,184 @@
 const socket = io("/");
 
-  // const videoGrid = document.getElementById("video-grid");
-const videoGrid1 = document.getElementById("video-grid1");
-const videoGrid2 = document.getElementById("video-grid2");
+// const videoGrid1 = document.getElementById("video-grid1");
+// const videoGrid2 = document.getElementById("video-grid2");
+// const roomcodeVAL = document.getElementById('roomcodeVAL');
 
+let angle = 0;
+const pointer = document.querySelector("#IDbottle");
+const btn = document.querySelector("#btnspin");
 
-const myVideo = document.createElement("video");
+var peerjsId;
+const localVideo = document.getElementById("localVideo");
+const remoteVideo = document.getElementById("remoteVideo");
 
-// const showChat = document.querySelector("#showChat");
-// const backBtn = document.querySelector(".header__back");
-myVideo.muted = true;
+const defCode = Math.floor(
+  Math.random() * (999999 - 100000 + 1) + 100000
+).toString();
 
-// backBtn.addEventListener("click", () => {
-//   document.querySelector(".main__left").style.display = "flex";
-//   document.querySelector(".main__left").style.flex = "1";
-//   document.querySelector(".main__right").style.display = "none";
-//   document.querySelector(".header__back").style.display = "none";
-// });
+function joinRoom(roomId) {
+  const peer = new Peer();
 
-// showChat.addEventListener("click", () => {
-//   document.querySelector(".main__right").style.display = "flex";
-//   document.querySelector(".main__right").style.flex = "1";
-//   document.querySelector(".main__left").style.display = "none";
-//   document.querySelector(".header__back").style.display = "block";
-// });
+  peer.on("open", function () {
+    const conn = peer.connect(roomId);
 
-const user = prompt("Enter your name");
+    conn.on("open", function () {
+      console.log("Connected to room", roomId);
 
-var peer = new Peer(undefined, {
-  path: "/peerjs",
-  host: "/",
-  port: "443",
-});
+      // Initiate video call
+      navigator.mediaDevices
+        .getUserMedia({ video: true, audio: true })
+        .then(function (stream) {
+          // Display local video stream
+          //  const localVideo = document.getElementById('localVideo');
+          localVideo.srcObject = stream;
 
-let myVideoStream;
-navigator.mediaDevices
-  .getUserMedia({
-    audio: true,
-    video: true,
-  })
-  .then((stream) => {
-    myVideoStream = stream;
-    addVideoStream1(myVideo, stream);
+          // Call the remote peer
+          const call = peer.call(roomId, stream);
 
-    peer.on("call", (call) => {
-      call.answer(stream);
-      const video = document.createElement("video");
-      call.on("stream", (userVideoStream) => {
-        addVideoStream2(video, userVideoStream);
+          // Answer the incoming call
+          call.answer(stream);
+
+          // Display remote video stream
+          const remoteVideo = document.getElementById("remoteVideo");
+          call.on("stream", function (remoteStream) {
+            remoteVideo.srcObject = remoteStream;
+          });
+        })
+        .catch(function (error) {
+          console.error("Error accessing media devices:", error);
+        });
+
+      btn.addEventListener("click", function () {
+        angle = angle + 2 * 360 + Math.random() * 360;
+        conn.send(angle);
+        spin(angle);
+      });
+
+      // Receive messages
+      conn.on("data", (variableValue) => {
+        // Log the received variable value
+        console.log("Received Variable:", variableValue);
+        spin(variableValue);
       });
     });
+  });
+}
 
-    socket.on("user-connected", (userId) => {
-      connectToNewUser(userId, stream);
+// Function to create a room
+function createRoom(userId) {
+  let localStream;
+
+  // Create a PeerJS connection.
+  const peer = new Peer(userId);
+
+  navigator.mediaDevices
+    .getUserMedia({ video: true, audio: true })
+    .then(function (stream) {
+      // Display local video stream
+      // const localVideo = document.getElementById('localVideo');
+      localStream = stream;
+      localVideo.srcObject = localStream;
+    });
+
+  peer.on("open", function () {
+    console.log("Room created with user ID:", userId);
+
+    peer.on("connection", function (conn) {
+      conn.on("open", function () {
+        console.log("Connection established with", conn.peer);
+
+        peer.on("call", function (call) {
+          // Answer the incoming call
+          call.answer(localStream);
+
+          // Display remote video stream
+          const remoteVideo = document.getElementById("remoteVideo");
+          call.on("stream", function (remoteStream) {
+            remoteVideo.srcObject = remoteStream;
+          });
+        });
+      });
+
+      btn.addEventListener("click", function () {
+        angle = angle + 2 * 360 + Math.random() * 360;
+        conn.send(angle);
+        spin(angle);
+      });
+
+      conn.on("data", (variableValue) => {
+        // Log the received variable value
+        console.log("Received Variable:", variableValue);
+        spin(variableValue);
+      });
+      // // Send messages
+      // conn.send("Hello!");
     });
   });
+}
 
-const connectToNewUser = (userId, stream) => {
-  const call = peer.call(userId, stream);
-  const video = document.createElement("video");
-  call.on("stream", (userVideoStream) => {
-    addVideoStream2(video, userVideoStream);
-  });
-};
+function createRoomx() {
+  console.log("room created");
+  // var roomcode = generateRoomCode();
+  // console.log(roomcode);
+  document.getElementById("roomcodeP").innerHTML = "Room code is: " + defCode;
+  socket.emit("joinRoom", defCode);
+  console.log(`User ${socket.id} joined room ${defCode}`);
 
-peer.on("open", (id) => {
-  socket.emit("join-room", ROOM_ID, id, user);
+  createRoom(defCode);
+}
+
+function joinRoomx() {
+  console.log("room joined");
+  var roomcodeVAL = document.getElementById("roomcodeVAL").value;
+  document.getElementById("roomcodeP").innerHTML =
+    "Room code is: " + roomcodeVAL;
+  socket.emit("joinRoom", roomcodeVAL);
+  console.log(`User ${socket.id} joined room ${roomcodeVAL}`);
+
+  joinRoom(roomcodeVAL);
+}
+
+// Event listener for user joining the room
+socket.on("userJoined", (userId) => {
+  console.log(`User ${userId} joined the room.`);
 });
 
-// const addVideoStream = (video, stream) => {
-//   video.srcObject = stream;
-//   video.addEventListener("loadedmetadata", () => {
-//     video.play();
-//     videoGrid.append(video);
-//   });
-// };
+// btn.addEventListener("click", function () {
+//   spin1();
+// });
 
-
-const addVideoStream1 = (video, stream) => {
-  video.srcObject = stream;
-  video.addEventListener("loadedmetadata", () => {
-    video.play();
-    videoGrid1.append(video);
-  });
-};
-
-const addVideoStream2 = (video, stream) => {
-  video.srcObject = stream;
-  video.addEventListener("loadedmetadata", () => {
-    video.play();
-    videoGrid2.append(video);
-  });
-};
+// function spin1(){
+//   angle = angle + 2 * 360 + Math.random() * 360;
+// spin(angle);
+// }
+//! Functions part started
+function spin(x) {
+  pointer.style.transform = `rotate(${x}deg)`;
+}
 
 
 
 
-let text = document.querySelector("#chat_message");
-let send = document.getElementById("send");
-let messages = document.querySelector(".messages");
 
-send.addEventListener("click", (e) => {
-  if (text.value.length !== 0) {
-    socket.emit("message", text.value);
-    text.value = "";
-  }
-});
-
-text.addEventListener("keydown", (e) => {
-  if (e.key === "Enter" && text.value.length !== 0) {
-    socket.emit("message", text.value);
-    text.value = "";
-  }
-});
-
-const inviteButton = document.querySelector("#inviteButton");
-const muteButton = document.querySelector("#muteButton");
-const stopVideo = document.querySelector("#stopVideo");
-muteButton.addEventListener("click", () => {
-  const enabled = myVideoStream.getAudioTracks()[0].enabled;
-  if (enabled) {
-    myVideoStream.getAudioTracks()[0].enabled = false;
-    html = `<i class="fas fa-microphone-slash"></i>`;
-    muteButton.classList.toggle("background__red");
-    muteButton.innerHTML = html;
-  } else {
-    myVideoStream.getAudioTracks()[0].enabled = true;
-    html = `<i class="fas fa-microphone"></i>`;
-    muteButton.classList.toggle("background__red");
-    muteButton.innerHTML = html;
-  }
-});
-
-stopVideo.addEventListener("click", () => {
-  const enabled = myVideoStream.getVideoTracks()[0].enabled;
-  if (enabled) {
-    myVideoStream.getVideoTracks()[0].enabled = false;
-    html = `<i class="fas fa-video-slash"></i>`;
-    stopVideo.classList.toggle("background__red");
-    stopVideo.innerHTML = html;
-  } else {
-    myVideoStream.getVideoTracks()[0].enabled = true;
-    html = `<i class="fas fa-video"></i>`;
-    stopVideo.classList.toggle("background__red");
-    stopVideo.innerHTML = html;
-  }
-});
-
-inviteButton.addEventListener("click", (e) => {
-  prompt(
-    "Copy this link and send it to people you want to meet with",
-    window.location.href
-  );
-});
-
-socket.on("createMessage", (message, userName) => {
-  messages.innerHTML =
-    messages.innerHTML +
-    `<div class="message">
-        <b><i class="far fa-user-circle"></i> <span> ${
-          userName === user ? "me" : userName
-        }</span> </b>
-        <span>${message}</span>
-    </div>`;
-});
-
-function share(){
+function share() {
   var urlshare = prompt(
     "Copy this link and send it to people you want to meet with",
     window.location.href
   );
-  
+}
+
+// Generate a random 6-digit room code
+function generateRoomCode() {
+  x = Math.floor(Math.random() * (999999 - 100000 + 1) + 100000).toString();
+  // socket.emit('roomcode', x);
+  return x;
+}
+
+function addVideoStream(video, stream) {
+  video.srcObject = stream;
+  video.addEventListener("loadedmetadata", () => {
+    video.play();
+  });
+  videoGrid.append(video);
 }
